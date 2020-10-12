@@ -18,10 +18,33 @@ const generateBookmarkElement = function (bookmark) {
   <button class= "delete"> Delete </button></div></li>`;
 };
 
+const addScreen = ` <form class="add-bookmarks-form ">
+<label for="item">Title:</label>
+<input type="text" name="item-name" id="item-name" />
+<label for="url">URL: </label>
+<input type="text" name="url" id="url" />
+<label for="description">Description:</label>
+<textarea name="description" id="description"></textarea>
+<label for="rating">Rating: </label>
+<input type="number" min="1" max="5" id="rating"/>
+<button class="add-bookmark-button">Add Bookmark</button>
+<button type="reset"  class="cancel">Cancel</button>
+</form>
+<form class="hidden err-msg">
+ <span>Err msg</span>
+<button class='errbtn'> Ok</button>
+</form>`;
+
 const generateBookmarksString = function (bookmarks) {
   console.log("generate bookmarks str ran");
-  const bookmarksList = bookmarks.map((bookmark) =>
-    generateBookmarkElement(bookmark)
+  const bookmarksList = bookmarks.map((bookmark) => {
+    if (bookmark.rating >= store.filter) {
+      return generateBookmarkElement(bookmark);
+    }
+  });
+  console.log(
+    "this is the bookmarks list from generate str: ",
+    bookmarksList
   );
   return bookmarksList.join("");
 };
@@ -47,20 +70,30 @@ const handleCloseError = function () {
   });
 };
 const render = function () {
-  $('.loading').addClass('hidden')
+  $(".loading").addClass("hidden");
   renderError();
   console.log("render ran");
-  let bookmarks = [...store.bookmarks];
-
-  const bookmarksStr = generateBookmarksString(bookmarks);
-  $(".js-display-bookmarks").html(bookmarksStr);
+  if (store.adding) {
+    $(".js-display-bookmarks").html(addScreen);
+  } else if (store.bookmarks.length === 0) {
+    $(".js-display-bookmarks").html(
+      `<p> You don't have any bookmarks! Click Add to add some.</p>`
+    );
+  } else {
+    let bookmarks = [...store.bookmarks];
+    console.log("this is bkmarks: ", bookmarks);
+    let bookmarksStr = generateBookmarksString(bookmarks);
+    console.log("this is bookmarks str from render: ", bookmarksStr);
+    $(".js-display-bookmarks").html(bookmarksStr);
+  }
 };
 
 
 const handleAddButton = function () {
-  $(".header").on("click", ".add", function (evt) {
+  $(".command-bar").on("click", ".add", function (evt) {
     console.log("add button clicked");
-    $(".add-bookmarks-form").toggleClass("hidden");
+    store.setAdding();
+    render();
   });
 };
 
@@ -71,19 +104,18 @@ const handleNewBookmarkSubmit = function () {
     const newBookmarkTitle = $("#item-name").val();
     const newBookmarkUrl = $("#url").val();
     const newBookmarkDescription = $("#description").val();
-    console.log("new desc: ", newBookmarkDescription)
+    console.log("new desc: ", newBookmarkDescription);
     const newBookmarkRating = $("#rating").val();
     const newBookmark = {
       title: newBookmarkTitle,
       url: newBookmarkUrl,
       rating: newBookmarkRating,
-      desc: newBookmarkDescription
-     
+      desc: newBookmarkDescription,
     };
-    
-    console.log("current bkmks: ", store.bookmarks);
 
-    render();
+    console.log("current bkmks: ", store.bookmarks);
+    store.setAdding();
+    store.setFilter(0);
     let isOk;
     api
       .createBookmark(newBookmark)
@@ -114,6 +146,8 @@ const handleCancelSubmit = function () {
     console.log("cancel clicked");
     event.preventDefault();
     console.log("cancel button clicked");
+    store.setAdding();
+    render();
     $(".add-bookmarks-form").toggleClass("hidden");
   });
 };
@@ -126,26 +160,23 @@ const getBookmarkFromElement = function (bookmark) {
 
 const handleDeleteBookmark = function () {
   $(".js-display-bookmarks").on("click", ".delete", (evt) => {
-   
     const bookmk = getBookmarkFromElement(evt.currentTarget);
     const theId = bookmk.id;
     let toDel = store.bookmarks.indexOf(bookmk);
-    console.log('index ', toDel)
+    console.log("index ", toDel);
     console.log("id to del", theId);
-    
-    
+
     api
       .deleteBookmark(theId)
       .then(() => {
         console.log("bookmarks pre: ", store.bookmarks);
         store.bookmarks.splice(toDel, 1);
-        
+
         console.log("bookmarks post: ", store.bookmarks);
         render();
       })
       .catch((error) => {
         store.setError(error.message);
-        
       });
   });
 };
@@ -163,16 +194,11 @@ const handleFilter = function () {
     console.log("filter ran");
     let value = this.value;
     console.log("filter set to ", value);
-    store.filter = value;
-    store.bookmarks.forEach((bookmark) => {
-      if (bookmark.rating < value) {
-        $(`[data-item-id="${bookmark.id}"]`).addClass("hidden");
-      } else {
-        $(`[data-item-id="${bookmark.id}"]`).removeClass("hidden");
-      }
-    });
+    store.setFilter(value);
+    render();
   });
 };
+
 
 const bindEventListeners = function () {
   handleNewBookmarkSubmit();

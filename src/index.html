@@ -11,13 +11,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Leckerli+One&display=swap" rel="stylesheet">
   </head>
   <body>
-    <main>
-      <section class="container">
-        <div class="header">
-          <h1>Hippo!</h1>
-          <p class='subtitle'>Your personal internet memory</p>
-<div class='hidden loading'> Please Wait... Loading data...</div>
-          <div class='command-bar'>
+    <header>
+      <div class="header">
+        <h1>Hippo!</h1>
+        <p class='subtitle'>Your personal internet memory</p>
+      <div class='hidden loading'> Please Wait... Loading data...</div>
+      </div>
+       <div class='command-bar'>
             <button class="add">ADD</button>
             <label for= "rating-filter"> 
                 <select class='filter' id = "rating-filter" name="rating-filter">
@@ -29,26 +29,11 @@
             </select>
           </div>
         </div>
+    </header>
+    <main>
+      <section class="container">
         <section class="bookmark-list">
-          <form class="add-bookmarks-form hidden">
-            <label for="item">Title:</label>
-            <input type="text" name="item-name" id="item-name" />
-            <label for="url">URL: </label>
-            <input type="text" name="url" id="url" />
-            <label for="description">Description:</label>
-            <textarea name="description" id="description"></textarea>
-            <label for="rating">Rating: </label>
-            <input type="number" min="1" max="5" id="rating"/>
-            <button class="add-bookmark-button">Add Bookmark</button>
-            <button type="reset"  class="cancel">Cancel</button>
-          </form>
-          <form class="hidden err-msg">
-             <span>Err msg</span>
-          <button class='errbtn'> Ok</button>
-          </form>
-      
           <section class="js-display-bookmarks">
-            <p>You don't have any bookmarks yet... :(</p>
           </section>
         </section>
       </section>
