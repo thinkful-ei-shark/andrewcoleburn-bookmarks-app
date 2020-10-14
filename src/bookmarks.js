@@ -55,6 +55,7 @@ const generateError = function (error) {
 
 const renderError = function () {
   if (store.error) {
+    console.log("render error ran with error")
     generateError(store.error);
     $(".err-msg").toggleClass("hidden");
   }
