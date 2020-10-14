@@ -20,19 +20,17 @@ const generateBookmarkElement = function (bookmark) {
 
 const addScreen = ` <form class="add-bookmarks-form ">
 <label for="item">Title:</label>
-<input type="text" name="item-name" id="item-name" />
+<input required type="text" name="item-name" id="item-name" />
 <label for="url">URL: </label>
-<input type="text" name="url" id="url" />
+<input required type="text" name="url" id="url" />
 <label for="description">Description:</label>
 <textarea name="description" id="description"></textarea>
 <label for="rating">Rating: </label>
 <input type="number" min="1" max="5" id="rating"/>
-<button class="add-bookmark-button">Add Bookmark</button>
+<button type="submit" class="add-bookmark-button">Add Bookmark</button>
 <button type="reset"  class="cancel">Cancel</button>
 </form>
-<form class="hidden err-msg">
- <span>Err msg</span>
-<button class='errbtn'> Ok</button>
+
 </form>`;
 
 const generateBookmarksString = function (bookmarks) {
@@ -50,7 +48,7 @@ const generateBookmarksString = function (bookmarks) {
 };
 
 const generateError = function (error) {
-  $(".err-msg").children("span").html(`${store.error}`);
+  $(".err-msg").children("span").html(`ERROR: ${store.error}`);
 };
 
 const renderError = function () {
@@ -115,7 +113,7 @@ const handleNewBookmarkSubmit = function () {
     };
 
     console.log("current bkmks: ", store.bookmarks);
-    store.setAdding();
+    
     store.setFilter(0);
     let isOk;
     api
@@ -127,6 +125,7 @@ const handleNewBookmarkSubmit = function () {
 
       .then((jsonData) => {
         if (isOk) {
+          store.setAdding();
           store.addBookmark(jsonData);
           render();
         } else {
